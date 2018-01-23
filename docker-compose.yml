@@ -1,0 +1,58 @@
+version: "2"
+services:
+  portal:
+    build: ./services/portal
+    volumes:
+      - ./services/portal:/portal
+      - ./data/log/pm2:/root/.pm2/logs
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis
+    tty: true
+  api:
+    build: ./services/api
+    volumes:
+      - ./services/api:/api
+      - ./data/log/pm2-api:/root/.pm2/logs
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis
+    tty: true
+  cdn:
+    build: ./services/cdn
+    volumes:
+    volumes:
+      - ./services/cdn/dist:/cdn
+      - ./data/log/cdn:/var/log/nginx/
+  gateway:
+    build: ./services/gateway
+    volumes:
+      - ./data/log/gateway:/var/log/nginx/
+      - ./services/gateway/services:/etc/nginx/conf.d/
+    links:
+      - portal
+      - cdn
+    ports:
+      - "80:80"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+  mysql:
+    image: mysql:latest
+    restart: always
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./data/db/mysql:/var/lib/mysql
+      - ./data/db/bootstrap:/docker-entrypoint-initdb.d
+    environment:
+       MYSQL_DATABASE: contacto_db
+       MYSQL_USER: contacto
+       MYSQL_PASSWORD: contacto
