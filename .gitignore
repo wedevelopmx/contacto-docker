@@ -1,8 +1,8 @@
-
-data/**
-!data/db/bootstrap
+# Do not save mysql & logs
+/data/db/mysql
+/data/log
 
 # Do not save services
-services/**
-# Except gateway
-!services/gateway
+services/api
+services/cdn
+services/portal
