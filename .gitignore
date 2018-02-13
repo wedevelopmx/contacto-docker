@@ -1,4 +1,5 @@
 # Do not save mysql & logs
+/data/db/bootstrap/camara.sql
 /data/db/mysql
 /data/log
 
