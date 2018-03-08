@@ -13,10 +13,11 @@ create or replace view attendance_list as
 	select sq.id, sq.type, sq.state, sq.area as district,
 			SUBSTRING_INDEX(GROUP_CONCAT(CAST(sq.displayName AS CHAR) ORDER BY latestAttendance desc), ',', 1 ) as displayName,
       SUBSTRING_INDEX(GROUP_CONCAT(CAST(sq.party AS CHAR) ORDER BY latestAttendance desc), ',', 1 ) as party,
+			SUBSTRING_INDEX(GROUP_CONCAT(CAST(sq.slug AS CHAR) ORDER BY latestAttendance desc), ',', 1 ) as slug,
       GROUP_CONCAT(distinct sq.displayName SEPARATOR ', ') as attendanceEntry,
       SUM(sq.entries) as entries
 	from (
-		select s.id, s.type, s.state, s.area, d.displayName, d.party, count(1) as entries,  max(latestAttendance) latestAttendance
+		select s.id, s.type, s.state, s.area, d.displayName, d.party, d.slug, count(1) as entries,  max(latestAttendance) latestAttendance
 		from Seats s join Deputies d on d.SeatId = s.id join Attendances a on a.DeputyId = d.id
 		and (a.attendance in ('A' , 'AO', 'PM', 'IV'))
 		group by s.id, s.type, s.state, s.area, d.id, d.displayName, d.party
