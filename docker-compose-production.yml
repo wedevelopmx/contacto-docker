@@ -1,4 +1,4 @@
-version: "3"
+version: "2"
 services:
   portal:
     build: ./services/portal
@@ -37,7 +37,7 @@ services:
     build: ./services/proxy
     volumes:
       - ./data/log/proxy:/var/log/nginx/
-      # - ./services/gateway/services:/etc/nginx/conf.d/
+      - ./services/gateway/services:/etc/nginx/conf.d/
     links:
       - portal
       - cdn
@@ -60,7 +60,7 @@ services:
       - "3307:3306"
     volumes:
       - ./data/db/bootstrap:/docker-entrypoint-initdb.d
-      # - ./data/db/mysql:/var/lib/mysql
+      - ./data/db/mysql:/var/lib/mysql
     environment:
        MYSQL_ROOT_PASSWORD: Rah7shaeyaiLiTha2ieviek9noshiepayaLu
        MYSQL_DATABASE: contacto_db
