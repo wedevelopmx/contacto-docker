@@ -1,0 +1,73 @@
+version: "3"
+services:
+  portal:
+    build: ./services/portal
+    volumes:
+      - ./services/portal:/portal
+      - ./data/log/pm2:/root/.pm2/logs
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis
+    networks:
+      - back-tier
+  api:
+    build: ./services/api
+    volumes:
+      - ./services/api:/api
+      - ./data/log/pm2-api:/root/.pm2/logs
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql
+      - redis
+    networks:
+      - back-tier
+  cdn:
+    build: ./services/cdn
+    volumes:
+      - ./services/cdn/dist:/cdn
+      - ./data/log/cdn:/var/log/nginx/
+    networks:
+      - back-tier
+  proxy:
+    build: ./services/proxy
+    volumes:
+      - ./data/log/proxy:/var/log/nginx/
+      # - ./services/gateway/services:/etc/nginx/conf.d/
+    links:
+      - portal
+      - cdn
+      - api
+    ports:
+      - "80:80"
+    networks:
+      - back-tier
+      - front-tier
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - back-tier
+  mysql:
+    image: mysql:latest
+    restart: always
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./data/db/bootstrap:/docker-entrypoint-initdb.d
+      # - ./data/db/mysql:/var/lib/mysql
+    environment:
+       MYSQL_ROOT_PASSWORD: Rah7shaeyaiLiTha2ieviek9noshiepayaLu
+       MYSQL_DATABASE: contacto_db
+       MYSQL_USER: contacto
+       MYSQL_PASSWORD: contacto
+    networks:
+      - back-tier
+networks:
+  front-tier:
+  back-tier:
