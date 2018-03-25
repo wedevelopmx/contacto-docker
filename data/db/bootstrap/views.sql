@@ -33,7 +33,9 @@ create table ProfileDetails (
 create index index_profile_details on ProfileDetails (slug);
 
 update Profiles set birth = null where birth = '';
+update Profiles set birth = null where birth = 'N/A';
 update Profiles set startDate = null where startDate = '';
+update Profiles set startDate = null where startDate = 'N/A';
 
 insert into ProfileDetails(id, type, state, district, displayName, slug, profileNumber, status, party, DeputyId,
 	birth, startDate, building, email, phone, studies, academics, twitter, facebook, attendances, latestAttendance)
@@ -155,7 +157,22 @@ create view chamber_by_studies as
 
 drop view if exists chamber_studies_by_party ;
 create view chamber_studies_by_party as
-	create view chamber_studies_by_party as
+	select party,
+		sum(coalesce(case when studies = 'Doctorado' then 1 end, 0))  as doctorado,
+		sum(coalesce(case when studies = 'Maestría' then 1 end, 0))  as maestria,
+		sum(coalesce(case when studies = 'Licenciatura' then 1 end, 0))  as licenciatura,
+		sum(coalesce(case when studies = 'Pasante/Licenciatura trunca' then 1 end, 0))  as pasante,
+		sum(coalesce(case when studies = 'Profesor Normalista' then 1 end, 0))  as normalista,
+		sum(coalesce(case when studies = 'Técnico' then 1 end, 0))  as tecnico,
+		sum(coalesce(case when studies = 'Preparatoria' then 1 end, 0))  as preparatoria,
+		sum(coalesce(case when studies = 'Secundaria' then 1 end, 0))  as secundaria,
+		sum(coalesce(case when studies = 'Primaria' then 1 end, 0))  as primaria,
+		sum(coalesce(case when ifnull(studies, true) = true then 1 end, 0))  as desconocido
+	from ActiveDeputies
+	group by party;
+
+drop view if exists chamber_studies_by_party_percentange ;
+create view chamber_studies_by_party_percentange as
 	select party,
 		sum(coalesce(case when studies = 'Doctorado' then 1 end, 0))  as doctorado,
 		sum(coalesce(case when studies = 'Maestría' then 1 end, 0))  as maestria,
